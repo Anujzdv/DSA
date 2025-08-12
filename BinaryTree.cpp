@@ -21,8 +21,8 @@ Node* buildTree(vector<int> preOrder){
         return NULL;
     }
     Node* root = new Node(preOrder[idx]);
-    root -> left = buildTree(preOrder);
-    root -> right = buildTree(preOrder);
+    root -> left = buildTree(preOrder); // for left subTree
+    root -> right = buildTree(preOrder); // for right subTree
     return root;
 }
 // pre-order traversal ( Root , Lt, Rt)
