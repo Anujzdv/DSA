@@ -1,0 +1,102 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    int val;
+    Node* left;
+    Node* right;
+    Node(int v) : val(v), left(nullptr), right(nullptr) {}
+};
+
+// Build binary tree from level-order array with -1 as null placeholder
+Node* buildTreeLevelOrder(const vector<int>& vals) {
+    if (vals.empty() || vals[0] == -1) return nullptr;
+    Node* root = new Node(vals[0]);
+    queue<Node*> q;
+    q.push(root);
+    size_t i = 1;
+    while (!q.empty() && i < vals.size()) {
+        Node* cur = q.front(); q.pop();
+        // left child
+        if (i < vals.size() && vals[i] != -1) {
+            cur->left = new Node(vals[i]);
+            q.push(cur->left);
+        }
+        i++;
+        // right child
+        if (i < vals.size() && vals[i] != -1) {
+            cur->right = new Node(vals[i]);
+            q.push(cur->right);
+        }
+        i++;
+    }
+    return root;
+}
+
+bool isLeaf(Node* node) {
+    return node && node->left == nullptr && node->right == nullptr;
+}
+
+void addLeftBoundary(Node* root, vector<int>& res) {
+    Node* cur = root->left;
+    while (cur) {
+        if (!isLeaf(cur)) res.push_back(cur->val);
+        if (cur->left) cur = cur->left;
+        else cur = cur->right;
+    }
+}
+
+void addLeaves(Node* root, vector<int>& res) {
+    if (!root) return;
+    if (isLeaf(root)) {
+        res.push_back(root->val);
+        return;
+    }
+    addLeaves(root->left, res);
+    addLeaves(root->right, res);
+}
+
+void addRightBoundary(Node* root, vector<int>& res) {
+    Node* cur = root->right;
+    vector<int> tmp;
+    while (cur) {
+        if (!isLeaf(cur)) tmp.push_back(cur->val);
+        if (cur->right) cur = cur->right;
+        else cur = cur->left;
+    }
+    // append in reverse order
+    for (int i = (int)tmp.size() - 1; i >= 0; --i) res.push_back(tmp[i]);
+}
+
+vector<int> boundaryTraversal(Node* root) {
+    vector<int> res;
+    if (!root) return res;
+    if (!isLeaf(root)) res.push_back(root->val);
+    addLeftBoundary(root, res);
+    addLeaves(root, res);
+    addRightBoundary(root, res);
+    return res;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int n;
+    if (!(cin >> n)) return 0;
+    vector<int> vals;
+    vals.reserve(n);
+    for (int i = 0; i < n; ++i) {
+        int x; cin >> x;
+        vals.push_back(x);
+    }
+    
+    Node* root = buildTreeLevelOrder(vals);
+    vector<int> ans = boundaryTraversal(root);
+    for (size_t i = 0; i < ans.size(); ++i) {
+        if (i) cout << ' ';
+        cout << ans[i];
+    }
+    cout << '\n';
+    return 0;
+}
